@@ -1,6 +1,8 @@
-import React from 'react';
+import React,{useEffect} from 'react';
+import axios from 'axios';
 import { useHistory } from 'react-router-dom';
 import { GoogleLogin } from 'react-google-login';
+import Cookies from 'universal-cookie';
 
 const Login = () => {
   const clientId =
@@ -8,16 +10,17 @@ const Login = () => {
 
   let history = useHistory();
 
-  
-    const onSuccess = (res) => {
-      console.log('Login Success: currentUser:', res.profileObj);
-      alert(
-        `Logged in successfully welcome ${res.profileObj.name} `
-      );
-      history.push('/logout')
+    const cookies = new Cookies();
+    const onSuccess =async (res) => {
+      console.log(res)
+      // const resp= await axios.post(`http://localhost:8080/`,{token:token})
+      // console.log(resp)
+     
+      cookies.set("profileObj",res,{ path: '/' })
+      console.log(cookies.get('token'));
+     // cookies.get('token').reloadAuthResponse()
+      history.push('/')
     };
-
-
 
     const onFailure = (res) => {
       console.log('Login failed: res:', res);
@@ -30,7 +33,6 @@ const Login = () => {
       <div>
         <GoogleLogin
           clientId={clientId}
-          buttonText="Login"
           onSuccess={onSuccess}
           onFailure={onFailure}
           cookiePolicy={'single_host_origin'}
@@ -42,3 +44,4 @@ const Login = () => {
   
 }
 export default Login;
+
