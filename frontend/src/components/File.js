@@ -3,6 +3,7 @@ import { useGoogleLogin } from 'react-google-login';
 import { useHistory } from 'react-router-dom';
 import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
 import Loader from "react-loader-spinner";
+import { refreshTokenSetup } from '../utils/refreshToken';
 
 import NavbarCustom from '../layout/Navbar'
 
@@ -20,15 +21,8 @@ function LoginHooks() {
 
     const onSuccess = (res) => {
         setLoading(false)
+        refreshTokenSetup(res);
         console.log(res);
-    };
-
-    const onFailure = (res) => {
-        console.log('Login failed: res:', res);
-        alert(
-            `Failed to login. 😢 Please ping this to repo owner twitter.com/sivanesh_fiz`
-        );
-
     };
 
     const onAutoLoadFinished = (res) => {
@@ -39,7 +33,6 @@ function LoginHooks() {
     useGoogleLogin({
         onSuccess,
         onAutoLoadFinished,
-        onFailure,
         clientId,
         isSignedIn: true,
         cookiePolicy: 'single_host_origin'

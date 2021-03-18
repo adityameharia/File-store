@@ -1,67 +1,49 @@
 package main
 
 import (
-	"encoding/json"
+	"context"
 	"fmt"
-	"io/ioutil"
+	"log"
 	"net/http"
+	"time"
+
+	utils "github.com/adityameharia/file-store/server/utils"
 
 	"github.com/gorilla/mux"
-	"google.golang.org/api/oauth2/v2"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
-
-type Response struct {
-	Test string `json:"test"`
-}
-
-type Request struct {
-	Token string `json:"token"`
-}
 
 var httpClient = &http.Client{}
 
+var client *mongo.Client
+
+var ctx context.Context
+
+func init() {
+	c, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://aditya:adityapassword@file-store.hi3s7.mongodb.net/file-store?retryWrites=true&w=majority"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	client = c
+	ctx, _ = context.WithTimeout(context.Background(), 100*time.Second)
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
 func main() {
+	defer client.Disconnect(ctx)
+	err := client.Ping(ctx, readpref.Primary())
+	if err != nil {
+		log.Fatal(err)
+	}
 	r := mux.NewRouter()
-	r.HandleFunc("/", HomeHandler).Methods("POST", "OPTIONS")
+	r.HandleFunc("/", HomeHandler).Methods("GET", "OPTIONS")
+	r.HandleFunc("/", Register).Methods("POST", "OPTIONS")
 
 	fmt.Println("server started")
-	http.ListenAndServe(":8080", r)
-}
-
-func HomeHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE")
-	w.Header().Set("Access-Control-Allow-Headers", "*")
-	if r.Method == "POST" {
-		reqBody, _ := ioutil.ReadAll(r.Body)
-		var tok Request
-		json.Unmarshal(reqBody, &tok)
-		token := tok.Token
-		fmt.Println("no fking way")
-
-		var t *oauth2.Tokeninfo
-		t, err := verifyIdToken(token)
-		if err != nil {
-			fmt.Println(err)
-		}
-		fmt.Println(t.Email)
-
-		w.Header().Set("Content-Type", "application/json")
-		response := Response{
-			Test: "Hello world",
-		}
-		json.NewEncoder(w).Encode(response)
-		return
-	}
-	http.ServeFile(w, r, "static/favicon.ico")
-}
-
-func verifyIdToken(idToken string) (*oauth2.Tokeninfo, error) {
-	oauth2Service, err := oauth2.New(&http.Client{})
-	if err != nil {
-		return nil, err
-	}
-	tokenInfoCall := oauth2Service.Tokeninfo()
-	tokenInfoCall.IdToken(idToken)
-	return tokenInfoCall.Do()
+	http.ListenAndServe(":8080", utils.HeaderMiddleware(r))
 }
