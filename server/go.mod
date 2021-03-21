@@ -4,7 +4,9 @@ go 1.13
 
 require (
 	cloud.google.com/go v0.79.0 // indirect
+	github.com/aws/aws-sdk-go v1.38.1
 	github.com/gorilla/mux v1.8.0
+	github.com/joho/godotenv v1.3.0
 	go.mongodb.org/mongo-driver v1.5.0
 	golang.org/x/oauth2 v0.0.0-20210311163135-5366d9dc1934 // indirect
 	golang.org/x/sys v0.0.0-20210309074719-68d13333faf2 // indirect
