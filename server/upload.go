@@ -8,6 +8,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
+	"time"
 
 	utils "github.com/adityameharia/file-store/server/utils"
 	"github.com/aws/aws-sdk-go/aws"
@@ -24,18 +25,12 @@ func UploadFileToS3(filename string, s *session.Session, file multipart.File, fi
 	buffer := make([]byte, size)
 	file.Read(buffer)
 
-	fmt.Println("fuck" + filename)
-
 	_, err := s3.New(s).PutObject(&s3.PutObjectInput{
-		Bucket: aws.String("driveclone"),
-		Key:    aws.String(filename),
-		//ACL:                  aws.String("public-read"), // could be private if you want it to be access by only authorized users
+		Bucket:        aws.String("driveclone"),
+		Key:           aws.String(filename),
 		Body:          bytes.NewReader(buffer),
 		ContentLength: aws.Int64(int64(size)),
 		ContentType:   aws.String(http.DetectContentType(buffer)),
-		// ContentDisposition:   aws.String("attachment"),
-		// ServerSideEncryption: aws.String("AES256"),
-		// StorageClass:         aws.String("INTELLIGENT_TIERING"),
 	})
 	if err != nil {
 		fmt.Println(err)
@@ -60,7 +55,7 @@ func fileUpload(w http.ResponseWriter, r *http.Request) {
 	t, err := utils.VerifyIdToken(r.Header.Get("bearer-token"))
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		data := error{
+		data := e{
 			Data: "Invalid Token Provided",
 		}
 		json.NewEncoder(w).Encode(data)
@@ -71,11 +66,23 @@ func fileUpload(w http.ResponseWriter, r *http.Request) {
 	filter := bson.D{{"email", t.Email}}
 
 	err = collection.FindOne(ctx, filter).Decode(&resp)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		data := e{
+			Data: "User Not Found",
+		}
+		json.NewEncoder(w).Encode(data)
+		return
+	}
 
 	file, fileHeader, err := r.FormFile("file")
 	if err != nil {
 		log.Println(err)
-		fmt.Fprintf(w, "Could not get uploaded file")
+		w.WriteHeader(http.StatusBadRequest)
+		data := e{
+			Data: "Unable to get File",
+		}
+		json.NewEncoder(w).Encode(data)
 		return
 	}
 	defer file.Close()
@@ -90,30 +97,63 @@ func fileUpload(w http.ResponseWriter, r *http.Request) {
 			""),                                // token can be left blank for now
 	})
 	if err != nil {
-		fmt.Fprintf(w, "Could not upload file")
+		w.WriteHeader(http.StatusBadRequest)
+		data := e{
+			Data: "Could Not upload file",
+		}
+		json.NewEncoder(w).Encode(data)
+		return
 	}
 
 	fileName, check := UploadFileToS3(resp.ID.Hex()+"-"+fileHeader.Filename, s, file, fileHeader)
 	if !check {
-		fmt.Println("couldnt upload file")
+		w.WriteHeader(http.StatusInternalServerError)
+		data := e{
+			Data: "Internal server Error",
+		}
+		json.NewEncoder(w).Encode(data)
 		return
 	}
-	fmt.Println("uploaded to aws")
 
 	update := bson.M{"$push": bson.M{"files": fileHeader.Filename}}
 
-	_, e := collection.UpdateOne(ctx, filter, update)
-	if e != nil {
-		fmt.Println(e)
+	_, er := collection.UpdateOne(ctx, filter, update)
+	if er != nil {
 		_, err := s3.New(s).DeleteObject(&s3.DeleteObjectInput{
 			Bucket: aws.String("driveclone"),
 			Key:    aws.String(fileHeader.Filename),
 		})
 		if err != nil {
-			fmt.Println(err)
-			fmt.Fprintf(w, "Internal server error")
+			w.WriteHeader(http.StatusInternalServerError)
+			data := e{
+				Data: "Internal server Error",
+			}
+			json.NewEncoder(w).Encode(data)
 			return
 		}
+	}
+	err = collection.FindOne(ctx, filter).Decode(&resp)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		data := e{
+			Data: "User Not Found",
+		}
+		json.NewEncoder(w).Encode(data)
+		return
+	}
+	u, err := json.Marshal(resp)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		data := e{
+			Data: "Internal server Error",
+		}
+		json.NewEncoder(w).Encode(data)
+		return
+	}
+
+	err = red.Set(t.Email, u, 59*time.Minute).Err()
+	if err != nil {
+		fmt.Println(err)
 	}
 
 	fmt.Fprintf(w, "Image uploaded successfully: %v", fileName)

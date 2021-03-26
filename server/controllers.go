@@ -6,28 +6,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	utils "github.com/adityameharia/file-store/server/utils"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
-
-type Request struct {
-	Email string   `json:"email"`
-	Name  string   `json:"name"`
-	Files []string `json:"files"`
-}
-
-type Response struct {
-	ID    primitive.ObjectID `bson:"_id, omitempty"`
-	Email string             `json:"email"`
-	Name  string             `json:"name"`
-	Files []string           `json:"files"`
-}
-
-type error struct {
-	Data string `json:"data"`
-}
 
 func Register(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
@@ -38,13 +21,14 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		data := error{
+		data := e{
 			Data: "Internal server Error",
 		}
 		json.NewEncoder(w).Encode(data)
 
 		return
 	}
+
 	user.Files = make([]string, 0)
 	collection = client.Database("files").Collection("files")
 	filter := bson.D{{"email", user.Email}}
@@ -55,17 +39,19 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Fatal(err)
 			w.WriteHeader(http.StatusInternalServerError)
-			data := error{
+			data := e{
 				Data: "Internal server Error",
 			}
 			json.NewEncoder(w).Encode(data)
 			return
 		}
 		w.WriteHeader(http.StatusCreated)
+
 		return
 	}
+
 	w.WriteHeader(http.StatusBadRequest)
-	data := error{
+	data := e{
 		Data: "The given emailId already exists",
 	}
 	json.NewEncoder(w).Encode(data)
@@ -73,30 +59,40 @@ func Register(w http.ResponseWriter, r *http.Request) {
 
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
 
-	var resp Request
+	var resp Response
 
 	token := r.Header.Get("bearer-token")
-	fmt.Println(token)
 
 	t, err := utils.VerifyIdToken(token)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		data := error{
+		data := e{
 			Data: "Invalid Token Provided",
 		}
 		json.NewEncoder(w).Encode(data)
 		return
 	}
+	val, err := red.Get(t.Email).Result()
+	if err != nil {
+		fmt.Println(err)
+	}
+	if val != "" {
+		err := json.Unmarshal([]byte(val), &resp)
+		if err == nil {
+			json.NewEncoder(w).Encode(resp)
+			return
+
+		}
+		fmt.Println(err)
+	}
 
 	collection = client.Database("files").Collection("files")
 	filter := bson.D{{"email", t.Email}}
 
-	fmt.Println(t.Email)
-
 	err = collection.FindOne(ctx, filter).Decode(&resp)
 	if err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
-		data := error{
+		data := e{
 			Data: "No account with the given emailId exists",
 		}
 		json.NewEncoder(w).Encode(data)
@@ -104,7 +100,23 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 
+	u, err := json.Marshal(resp)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		data := e{
+			Data: "Internal Server Error",
+		}
+		json.NewEncoder(w).Encode(data)
+		return
+	}
+
+	err = red.Set(t.Email, u, 59*time.Minute).Err()
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	json.NewEncoder(w).Encode(resp)
+
 	return
 
 }
@@ -114,7 +126,7 @@ func checkUser(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		data := error{
+		data := e{
 			Data: "Internal server Error",
 		}
 		json.NewEncoder(w).Encode(data)
@@ -129,7 +141,7 @@ func checkUser(w http.ResponseWriter, r *http.Request) {
 	err = collection.FindOne(ctx, filter).Decode(&user)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
-		data := error{
+		data := e{
 			Data: "No account with the given emailId exists",
 		}
 		json.NewEncoder(w).Encode(data)

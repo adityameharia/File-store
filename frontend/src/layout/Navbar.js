@@ -1,7 +1,7 @@
 import { useHistory } from 'react-router-dom';
-import { GoogleLogout,useGoogleLogin } from 'react-google-login';
+import { GoogleLogout } from 'react-google-login';
 import { Navbar,  Button } from 'react-bootstrap';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 
 const clientId =
 

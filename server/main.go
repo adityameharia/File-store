@@ -9,9 +9,11 @@ import (
 	"time"
 
 	utils "github.com/adityameharia/file-store/server/utils"
+	"github.com/go-redis/redis"
 
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -24,6 +26,31 @@ var client *mongo.Client
 var ctx context.Context
 
 var collection *mongo.Collection
+
+var red *redis.Client
+
+var err error
+
+type Request struct {
+	Email string   `json:"email"`
+	Name  string   `json:"name"`
+	Files []string `json:"files"`
+}
+
+type Response struct {
+	ID    primitive.ObjectID `bson:"_id, omitempty"`
+	Email string             `json:"email"`
+	Name  string             `json:"name"`
+	Files []string           `json:"files"`
+}
+
+type PresignedUrl struct {
+	Url string `json:"url"`
+}
+
+type e struct {
+	Data string `json:"data"`
+}
 
 func init() {
 	err := godotenv.Load()
@@ -44,8 +71,15 @@ func init() {
 }
 
 func main() {
+
+	red = redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "",
+		DB:       0,
+	})
+
 	defer client.Disconnect(ctx)
-	err := client.Ping(ctx, readpref.Primary())
+	err = client.Ping(ctx, readpref.Primary())
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -54,6 +88,7 @@ func main() {
 	r.HandleFunc("/register", Register).Methods("POST")
 	r.HandleFunc("/checkuser", checkUser).Methods("POST")
 	r.HandleFunc("/upload", fileUpload).Methods("POST")
+	r.HandleFunc("/download/{id}/{filename}", filedownloader).Methods("GET")
 
 	fmt.Println("server started")
 	http.ListenAndServe(":8080", utils.HeaderMiddleware(r))
