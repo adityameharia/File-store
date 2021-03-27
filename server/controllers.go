@@ -72,6 +72,7 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(data)
 		return
 	}
+
 	val, err := red.Get(t.Email).Result()
 	if err != nil {
 		fmt.Println(err)
@@ -135,8 +136,6 @@ func checkUser(w http.ResponseWriter, r *http.Request) {
 	collection = client.Database("files").Collection("files")
 
 	filter := bson.D{{"email", user.Email}}
-
-	fmt.Println(user.Email)
 
 	err = collection.FindOne(ctx, filter).Decode(&user)
 	if err != nil {

@@ -89,6 +89,7 @@ func main() {
 	r.HandleFunc("/checkuser", checkUser).Methods("POST")
 	r.HandleFunc("/upload", fileUpload).Methods("POST")
 	r.HandleFunc("/download/{id}/{filename}", filedownloader).Methods("GET")
+	r.HandleFunc("/{id}/{filename}", deleteFile).Methods("DELETE")
 
 	fmt.Println("server started")
 	http.ListenAndServe(":8080", utils.HeaderMiddleware(r))

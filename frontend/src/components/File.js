@@ -8,7 +8,7 @@ import setToken from '../utils/setToken'
 import FileItem from './FileItem'
 import NavbarCustom from '../layout/Navbar'
 import axios from 'axios';
-import { Modal } from 'react-bootstrap';
+import { CardDeck, Modal } from 'react-bootstrap';
 
 const clientId =
 
@@ -28,7 +28,7 @@ function LoginHooks() {
     let [smShow, setSmShow] = useState(false);
 
     const changeHandler = (event) => {
-        setSmShow(true)
+       
         if (event.target.files[0] !== undefined)
             setFileName(event.target.files[0].name)
         setSelectedFile(event.target.files[0]);
@@ -53,7 +53,7 @@ function LoginHooks() {
         try {
             setSmShow(true)
             await axios.post("/upload", data)
-            //setSmShow(false)
+            setSmShow(false)
             axios.get('/home').then(response => {
                 setUserData(response.data)
             })
@@ -82,6 +82,11 @@ function LoginHooks() {
             history.push('/login')
         }
     };
+
+    const updateUserData=(data)=>{
+        console.log(data)
+        setUserData(data)
+    }
 
     const onAutoLoadFinished = (res) => {
         console.log(res)
@@ -114,12 +119,15 @@ function LoginHooks() {
                         <div>
                             <button onClick={handleSubmission}>Submit</button>
                         </div>
+                        
                         <div>
+                            <CardDeck>
                             {
                                 userData !== null && userData.files.map((f) => (
-                                    <FileItem key={f} filename={f} id={userData.ID} />))
+                                    <FileItem key={f} filename={f} userData={userData} updateUserData={updateUserData}/>))
 
                             }
+                            </CardDeck>
                         </div>
                     </div>
                 )}

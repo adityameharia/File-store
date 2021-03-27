@@ -35,7 +35,7 @@ func filedownloader(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println(val)
+
 	if val != "" {
 		resp := PresignedUrl{
 			Url: val,
