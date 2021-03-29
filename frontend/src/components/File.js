@@ -13,7 +13,7 @@ import axios from 'axios';
 import styled from "styled-components"
 import Draggable from 'react-draggable';
 import { Plus } from 'react-bootstrap-icons';
-import {BsPlus} from 'react-icons/bs'
+
 
 const Wrapper = styled.div`
 	display: flex;
@@ -54,6 +54,7 @@ function LoginHooks() {
     let [loading, setLoading] = useState(true)
     let [userData, setUserData] = useState(null)
     let [uploading,setUploading]=useState(false)
+    let [isAuth,setIsAuth]=useState(false)
 
 
     const changeHandler = async(event) => {
@@ -91,6 +92,7 @@ function LoginHooks() {
     };
 
     const onSuccess = async (res) => {
+        setIsAuth(true)
 
         setToken(res.tokenId)
         try {
@@ -138,7 +140,7 @@ function LoginHooks() {
             </div>) :
                 (
                     <div>
-                        <NavbarCustom />
+                        <NavbarCustom isAuth={isAuth}/>
                         {!uploading && <Draggable>
                             <div style={{
                                 position: 'fixed',

@@ -7,7 +7,7 @@ const clientId =
 
     '707788443358-u05p46nssla3l8tmn58tpo9r5sommgks.apps.googleusercontent.com';
 
-const NavbarCustom=()=>{
+const NavbarCustom=({isAuth})=>{
     let history = useHistory();
 
     const Success = () => {
@@ -30,14 +30,14 @@ const NavbarCustom=()=>{
           File-Store
         </Navbar.Brand>
            
-                <GoogleLogout
+               {isAuth && <GoogleLogout
                     clientId={clientId}
                     render={renderProps => (
-                        <Button variant="light" onClick={renderProps.onClick} disabled={renderProps.disabled}>Logout</Button>
+                        <Button style={{marginLeft:"auto"}} variant="light" onClick={renderProps.onClick} disabled={renderProps.disabled}>Logout</Button>
                     )}
                     buttonText="Logout"
                     onLogoutSuccess={Success}
-                ></GoogleLogout>
+                ></GoogleLogout>}
         </Navbar>
     );
 }

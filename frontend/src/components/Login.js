@@ -2,7 +2,9 @@ import React from 'react';
 import { useHistory } from 'react-router-dom';
 import { GoogleLogin } from 'react-google-login';
 import axios from 'axios';
+import {  Button } from 'react-bootstrap';
 import setToken from '../utils/setToken'
+import NavbarCustom from '../layout/Navbar'
 
 const Login = () => {
   const clientId =
@@ -46,12 +48,17 @@ const Login = () => {
   };
 
   return (
-    <div>
+    <div className="Login">
+      <NavbarCustom isAuth={false}></NavbarCustom>
+			<div className='container'>
+      
       <GoogleLogin
         clientId={clientId}
         onSuccess={onSuccess}
-        buttonText="Login"
         onFailure={onFailure}
+        render={renderProps => (
+          <Button block style={{width:'10rem',margin:'auto',marginTop:'40vh'}} size="lg" type='submit' className='btn btn-primary' onClick={renderProps.onClick} disabled={renderProps.disabled}>Sign In</Button>
+        )}
         cookiePolicy={'single_host_origin'}
         style={{ marginTop: '100px' }}
         isSignedIn={true}
@@ -59,12 +66,13 @@ const Login = () => {
       <GoogleLogin
         clientId={clientId}
         onSuccess={Success}
-        buttonText="sign up"
+        render={renderProps => (<Button block style={{width:'10rem',margin:'auto',marginTop:'2vh'}} size="lg" type='submit' className='btn btn-primary' onClick={renderProps.onClick} disabled={renderProps.disabled}>Sign Up</Button>)}
         onFailure={onFailure}
         cookiePolicy={'single_host_origin'}
         style={{ marginTop: '100px' }}
         isSignedIn={true}
       />
+    </div>
     </div>
   );
 
