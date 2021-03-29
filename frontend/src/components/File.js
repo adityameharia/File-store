@@ -2,13 +2,33 @@ import React, { useState } from 'react';
 import { useGoogleLogin } from 'react-google-login';
 import { useHistory } from 'react-router-dom';
 import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import Loader from "react-loader-spinner";
 import { refreshTokenSetup } from '../utils/refreshToken';
 import setToken from '../utils/setToken'
 import FileItem from './FileItem'
 import NavbarCustom from '../layout/Navbar'
 import axios from 'axios';
-import { CardDeck, Modal } from 'react-bootstrap';
+import styled from "styled-components"
+import Draggable from 'react-draggable';
+import { Plus } from 'react-bootstrap-icons';
+import {BsPlus} from 'react-icons/bs'
+
+const Wrapper = styled.div`
+	display: flex;
+	flex-direction: row;
+    flex-wrap:wrap;
+	font-size: 1.5rem;
+	justify-content: space-evenly;
+	align-items: center;
+	background-color: white;
+	font-family: Raleway, sans-serif;
+	padding: 1em;
+`
+
+const FileAdd=styled.div`
+`
 
 const clientId =
 
@@ -16,44 +36,47 @@ const clientId =
 
 
 
+const Loading = () => (
+    <div style={{
+         display: 'flex',
+        flexDirection: "row",
+    }}>
+        Uploading &nbsp;<Loader type="ThreeDots" color="#00BFFF" height={30} width={30} />
+    </div>
+)
+
 function LoginHooks() {
 
     let history = useHistory();
 
-    let [filename, setFileName] = useState()
+    const toastId = React.useRef(null);
+    
     let [loading, setLoading] = useState(true)
-    let [selectedFile, setSelectedFile] = useState();
-    let [isFilePicked, setIsFilePicked] = useState(false);
     let [userData, setUserData] = useState(null)
-    let [smShow, setSmShow] = useState(false);
+    let [uploading,setUploading]=useState(false)
 
-    const changeHandler = (event) => {
-       
-        if (event.target.files[0] !== undefined)
-            setFileName(event.target.files[0].name)
-        setSelectedFile(event.target.files[0]);
-        setIsFilePicked(true);
-    };
 
-    const handleSubmission = async (e) => {
-        e.preventDefault()
-        if (!isFilePicked) {
-            console.log("pick file pls")
+    const changeHandler = async(event) => {
+
+        if (event.target.files[0] == undefined)
             return
-        }
+        
 
         const data = new FormData()
-        data.append('file', selectedFile)
+        data.append('file', event.target.files[0])
+        
 
-        if (userData.files.includes(filename)) {
+        if (userData.files.includes(event.target.files[0].name)) {
             alert("a file with the given name already exists")
             return
         }
 
         try {
-            setSmShow(true)
+            setUploading(true)
+            toastId.current = toast(<Loading />);
             await axios.post("/upload", data)
-            setSmShow(false)
+            toast.dismiss(toastId.current);
+            setUploading(false)
             axios.get('/home').then(response => {
                 setUserData(response.data)
             })
@@ -83,7 +106,7 @@ function LoginHooks() {
         }
     };
 
-    const updateUserData=(data)=>{
+    const updateUserData = (data) => {
         console.log(data)
         setUserData(data)
     }
@@ -93,6 +116,7 @@ function LoginHooks() {
         if (res === false)
             history.push('/login')
     }
+
 
     useGoogleLogin({
         onSuccess,
@@ -115,38 +139,47 @@ function LoginHooks() {
                 (
                     <div>
                         <NavbarCustom />
-                        <input type="file" name="file" onChange={changeHandler} />
-                        <div>
-                            <button onClick={handleSubmission}>Submit</button>
-                        </div>
-                        
-                        <div>
-                            <CardDeck>
-                            {
-                                userData !== null && userData.files.map((f) => (
-                                    <FileItem key={f} filename={f} userData={userData} updateUserData={updateUserData}/>))
+                        {!uploading && <Draggable>
+                            <div style={{
+                                position: 'fixed',
+                                zIndex:'50',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                top: '90%',
+                                left: '94%',
+                                width: 20,
+                                height: 20,
+                                backgroundColor: '#fff',
+                                borderRadius: 50,
+                            }}>
+                                <label style={{height:'20rem' }} htmlFor="files"><Plus color="royalblue" size={60}/></label>
+                                <input
+                                    id="files"
+                                    style={{
+                                        display: "none",
+                                        visibility: "none",
 
-                            }
-                            </CardDeck>
+                                    }} type="file" name="file" onChange={changeHandler} />
+                            </div></Draggable>}
+
+                        <div>
+                            <Wrapper>
+                                {
+                                    userData !== null && userData.files.map((f) => (
+                                        <FileItem key={f} filename={f} userData={userData} updateUserData={updateUserData} />))
+
+                                }
+                            </Wrapper>
                         </div>
+                        <ToastContainer
+                            position="bottom-right"
+                            autoClose={false}
+                            hideProgressBar={true}
+                            draggable />
                     </div>
                 )}
-            <div style={{position:"fixed",right:"0"}}>
-                <Modal
-                    size="sm"
-                    show={smShow}
-                    position="buttom-right"
-                    backdrop="static"
-                    onHide={() => setSmShow(false)}
-                    aria-labelledby="example-modal-sizes-title-sm"
-                >
-                <Modal.Header closeButton>
-                    <Modal.Title id="example-modal-sizes-title-sm">
-                            Uploading
-                    </Modal.Title>
-                </Modal.Header>
-                </Modal>
-            </div>
+
+
         </div>
     );
 }

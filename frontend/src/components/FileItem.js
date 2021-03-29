@@ -38,12 +38,13 @@ const FileItem = ({ filename, userData,updateUserData }) => {
 
     return (
         <div>
-            <Card>
-                <Card.Img variant="top" src="holder.js/100px160" alt="hi"/>
+            <Card style={{ width: '20rem'}}>
+                <Card.Img variant="top" src="https://picsum.photos/200" alt="hi"/>
                 <Card.Body>
                     <Card.Title>{filename}</Card.Title>
-                    <Button variant="primary" onClick={del}>Delete</Button>
+                    <Button style={{margin:"0.2rem"}} variant="primary" onClick={del}>Delete</Button>
                     <Button
+                    style={{margin:"0.2rem"}}
                     variant="primary"
                     onClick={download}
                     >
