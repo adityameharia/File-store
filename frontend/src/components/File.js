@@ -27,14 +27,7 @@ const Wrapper = styled.div`
 	padding: 1em;
 `
 
-const FileAdd=styled.div`
-`
-
-const clientId =
-
-    '707788443358-u05p46nssla3l8tmn58tpo9r5sommgks.apps.googleusercontent.com';
-
-
+const clientId ='707788443358-u05p46nssla3l8tmn58tpo9r5sommgks.apps.googleusercontent.com';
 
 const Loading = () => (
     <div style={{
