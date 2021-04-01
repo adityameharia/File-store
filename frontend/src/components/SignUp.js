@@ -27,7 +27,8 @@ const SignUp = () => {
             }
             auth.createUserWithEmailAndPassword(user.email, user.password).
                 then(async (user) => {
-                    history.push('/')
+                    var user = auth.currentUser;
+                    user.sendEmailVerification();
                 }).
                 catch(e => {
                     alert(e.message)

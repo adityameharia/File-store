@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useGoogleLogin } from 'react-google-login';
 import { useHistory } from 'react-router-dom';
 import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
 import { ToastContainer, toast } from 'react-toastify';
@@ -14,6 +13,7 @@ import axios from 'axios';
 import styled from "styled-components"
 import Draggable from 'react-draggable';
 import { Plus } from 'react-bootstrap-icons';
+import { Alert } from 'react-bootstrap';
 
 
 const Wrapper = styled.div`
@@ -41,8 +41,6 @@ const Loading = () => (
 
 function File() {
 
-    console.log(auth.currentUser)
-
     let history = useHistory();
 
     const toastId = React.useRef(null);
@@ -51,6 +49,7 @@ function File() {
     let [userData, setUserData] = useState(null)
     let [uploading, setUploading] = useState(false)
     let [isAuth, setIsAuth] = useState(false)
+    let [isVerified,setIsVerified]=useState()
 
 
     const changeHandler = async (event) => {
@@ -87,10 +86,13 @@ function File() {
         }
     };
 
-    useEffect(async() => {
-        console.log('hi')
-        if (auth.currentUser == null)
+    useEffect(() => {
+        auth.onAuthStateChanged(async function(user) {
+        console.log(user)
+        if (user == null) {
             history.push('/login')
+        } 
+
         else {
             let token = await auth.currentUser.getIdToken(/* forceRefresh */ true)
             setToken(token)
@@ -100,6 +102,7 @@ function File() {
             try {
                 let response = await axios.get('/home')
                 setUserData(response.data)
+                setIsVerified(auth.currentUser.emailVerified)
                 setLoading(false);
             }
             catch (err) {
@@ -108,7 +111,7 @@ function File() {
             }
 
         }
-    }, [])
+    })}, [])
 
 
     const updateUserData = (data) => {
@@ -128,7 +131,7 @@ function File() {
                 (
                     <div>
                         <NavbarCustom isAuth={isAuth} />
-                        {!uploading && <Draggable>
+                        {!uploading && isVerified && <Draggable>
                             <div style={{
                                 position: 'fixed',
                                 zIndex: '50',
@@ -152,13 +155,17 @@ function File() {
                             </div></Draggable>}
 
                         <div>
-                            <Wrapper>
+                            {isVerified?(<Wrapper>
+                                {
+                                    !userData?.files.length && 
+                                    <Alert variant='primary'>No files uploaded till now</Alert>
+                                }
                                 {
                                     userData !== null && userData.files.map((f) => (
                                         <FileItem key={f} filename={f} userData={userData} updateUserData={updateUserData} />))
 
                                 }
-                            </Wrapper>
+                            </Wrapper>):<Alert variant='danger'>Pls Verofy Email before uploading</Alert>}
                         </div>
                         <ToastContainer
                             position="bottom-right"

@@ -7,6 +7,8 @@ import NavbarCustom from '../layout/Navbar'
 
 const Login = () => {
 
+  console.log(auth.currentUser)
+
   let history = useHistory();
 
   const [user, setUser] = useState({ email: '', password: '' });
@@ -49,6 +51,7 @@ const Login = () => {
                 type='email'
                 className='form-control'
                 aria-describedby='emailHelp'
+                placeholder='Enter your name'
                 value={user.email}
                 onChange={onChange}
                 required></Form.Control>
@@ -61,6 +64,7 @@ const Login = () => {
                 type='password'
                 name='password'
                 className='form-control'
+                placeholder='Enter Password'
                 value={user.password}
                 onChange={onChange}
                 required></Form.Control>

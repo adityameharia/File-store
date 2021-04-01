@@ -1,5 +1,5 @@
 import './App.css';
-import React from 'react';
+import React,{useState} from 'react';
 import {
   BrowserRouter as Router,
   Switch,
@@ -17,20 +17,29 @@ import {auth} from './utils/firebase'
 
 function App() {
 
-  
+  let [isLoggedIn,setIsLoggedIn]=useState(true)
+
+  auth.onAuthStateChanged(function(user){
+    if (user == null) {
+      setIsLoggedIn(false)
+    }else{
+      setIsLoggedIn(true)
+    }
+
+  })
 
   return (
     <Router>
       <Switch>
         <Route path="/login">
-        {!auth.currentUser ? <Login/>:<Redirect to="/" />}     
+        {!isLoggedIn ? <Login/>:<Redirect to="/" />}     
           
         </Route>
         <Route path="/signup">
-        {!auth.currentUser ? <SignUp/>:<Redirect to="/" />}       
+        { !isLoggedIn ? <SignUp/>:<Redirect to="/" />}       
         </Route>
         <Route path="/forgotpassword">
-        {!auth.currentUser ? <ForgotPassword/>:<Redirect to="/" />}       
+        { !isLoggedIn? <ForgotPassword/>:<Redirect to="/" />}       
         </Route>
         <Route path="/">
           <File/>
