@@ -10,6 +10,7 @@ const FileItem = ({ filename, userData,updateUserData }) => {
         
         try {
             let res = await axios.get(`download/${userData.ID}/${filename}`)
+            console.log(res)
             axios.get(res.data.url, {
                 responseType: 'blob',
             })
@@ -19,7 +20,7 @@ const FileItem = ({ filename, userData,updateUserData }) => {
         }
         catch (err) {
             alert(err.response.data.data)
-            console.log(err)
+            console.log(err.response)
         }
     }
 

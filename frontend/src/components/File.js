@@ -54,6 +54,8 @@ function File() {
 
     const changeHandler = async (event) => {
 
+        console.log(userData)
+
         if (event.target.files[0] === undefined)
             return
 
@@ -68,11 +70,18 @@ function File() {
         }
 
         try {
+
             setUploading(true)
+
             toastId.current = toast(<Loading />);
-            await axios.post("/upload", data)
+
+            let res=await axios.get(`/upload/${userData.ID}/${event.target.files[0].name}`)
+            
+            await axios.put(res.data.url,data)
+
             toast.dismiss(toastId.current);
             setUploading(false)
+
             axios.get('/home').then(response => {
                 setUserData(response.data)
             })
@@ -82,7 +91,7 @@ function File() {
         }
         catch (err) {
             alert(err.response.data.data)
-            console.log(err)
+            console.log(err.response)
         }
     };
 
@@ -104,6 +113,7 @@ function File() {
                 setUserData(response.data)
                 setIsVerified(auth.currentUser.emailVerified)
                 setLoading(false);
+                console.log(userData)
             }
             catch (err) {
                 
@@ -114,7 +124,7 @@ function File() {
             }
 
         }
-    })}, [])
+    })},[])
 
 
     const updateUserData = (data) => {
@@ -168,7 +178,7 @@ function File() {
                                         <FileItem key={f} filename={f} userData={userData} updateUserData={updateUserData} />))
 
                                 }
-                            </Wrapper>):<Alert variant='danger'>Pls Verofy Email before uploading</Alert>}
+                            </Wrapper>):<Alert variant='danger'>Pls Verify Email before uploading</Alert>}
                         </div>
                         <ToastContainer
                             position="bottom-right"

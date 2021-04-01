@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"time"
 
 	utils "github.com/adityameharia/file-store/server/utils"
 
@@ -113,7 +112,7 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = red.Set(email, u, 59*time.Minute).Err()
+	err = red.Set(email, u, 0).Err()
 	if err != nil {
 		fmt.Println(err)
 	}

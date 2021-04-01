@@ -2,8 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"time"
@@ -33,24 +31,17 @@ func filedownloader(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	val, err := red.Get(vars["id"] + "-" + vars["filename"]).Result()
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	if val != "" {
-		resp := PresignedUrl{
-			Url: val,
-		}
-
-		json.NewEncoder(w).Encode(resp)
-
-		return
-	}
-
 	sess, err := session.NewSession(&aws.Config{
 		Region: aws.String(os.Getenv("AWS_REGION"))},
 	)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		data := e{
+			Data: "Internal Server Error",
+		}
+		json.NewEncoder(w).Encode(data)
+		return
+	}
 
 	// Create S3 service client
 	svc := s3.New(sess)
@@ -59,19 +50,19 @@ func filedownloader(w http.ResponseWriter, r *http.Request) {
 		Bucket: aws.String("driveclone"),
 		Key:    aws.String(vars["id"] + "-" + vars["filename"]),
 	})
-	urlStr, err := req.Presign(60 * time.Minute)
+	urlStr, err := req.Presign(15 * time.Second)
 
 	if err != nil {
-		log.Println("Failed to sign request", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		data := e{
+			Data: "Internal Server Error",
+		}
+		json.NewEncoder(w).Encode(data)
+		return
 	}
 
 	resp := PresignedUrl{
 		Url: urlStr,
-	}
-
-	err = red.Set(vars["id"]+"-"+vars["filename"], urlStr, 59*time.Minute).Err()
-	if err != nil {
-		fmt.Println(err)
 	}
 
 	json.NewEncoder(w).Encode(resp)
