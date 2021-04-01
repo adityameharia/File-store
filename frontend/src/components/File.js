@@ -28,7 +28,7 @@ const Wrapper = styled.div`
 	padding: 1em;
 `
 
-const clientId = '707788443358-u05p46nssla3l8tmn58tpo9r5sommgks.apps.googleusercontent.com';
+
 
 const Loading = () => (
     <div style={{
@@ -39,7 +39,9 @@ const Loading = () => (
     </div>
 )
 
-function LoginHooks() {
+function File() {
+
+    console.log(auth.currentUser)
 
     let history = useHistory();
 
@@ -86,6 +88,7 @@ function LoginHooks() {
     };
 
     useEffect(async() => {
+        console.log('hi')
         if (auth.currentUser == null)
             history.push('/login')
         else {
@@ -170,4 +173,4 @@ function LoginHooks() {
     );
 }
 
-export default LoginHooks;
+export default File;

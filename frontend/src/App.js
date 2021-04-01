@@ -6,8 +6,10 @@ import {
   Route,
   Redirect
 } from "react-router-dom";
-import LoginHooks from './components/Login';
+import Login from './components/Login'
 import File from './components/File';
+import SignUp from './components/SignUp'
+import ForgotPassword from './components/ForgotPassword'
 import 'react-toastify/dist/ReactToastify.css';
 import {auth} from './utils/firebase'
 
@@ -15,13 +17,20 @@ import {auth} from './utils/firebase'
 
 function App() {
 
-  console.log(auth.currentUser)
+  
 
   return (
     <Router>
       <Switch>
         <Route path="/login">
-        {auth.currentUser ? <LoginHooks/>:<Redirect to="/" />}       
+        {!auth.currentUser ? <Login/>:<Redirect to="/" />}     
+          
+        </Route>
+        <Route path="/signup">
+        {!auth.currentUser ? <SignUp/>:<Redirect to="/" />}       
+        </Route>
+        <Route path="/forgotpassword">
+        {!auth.currentUser ? <ForgotPassword/>:<Redirect to="/" />}       
         </Route>
         <Route path="/">
           <File/>

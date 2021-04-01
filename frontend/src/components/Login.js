@@ -1,16 +1,11 @@
 import React, { useState } from 'react';
-import { useHistory } from 'react-router-dom';
-import { GoogleLogin } from 'react-google-login';
-import axios from 'axios';
+import { useHistory,Link } from 'react-router-dom';
 import { Button, Form } from 'react-bootstrap';
-import setToken from '../utils/setToken'
 import { auth } from '../utils/firebase'
 import NavbarCustom from '../layout/Navbar'
-import { refreshTokenSetup } from '../utils/refreshToken';
+
 
 const Login = () => {
-  // const clientId =
-  //   '272242194309-sdgchprjq0s7auu186ofilo3o9ij6eir.apps.googleusercontent.com';
 
   let history = useHistory();
 
@@ -27,8 +22,8 @@ const Login = () => {
     then(async(user) => { 
       history.push('/')
     }).
-    catch(error => {
-      alert("Invalid Credentials")
+    catch(e => {
+      alert(e.message)
     });
     
   };
@@ -74,27 +69,10 @@ const Login = () => {
             <Button block size="lg" type='submit' className='btn btn-primary'>
               Login
 					</Button>
+          <div style={{textAlign:'center'}}><Link to={`/forgotpassword`}>Forgot Password</Link> </div>
+          <div style={{textAlign:'center'}}>Dont have an account <Link to={`/signup`}>SignUp</Link> </div>
           </Form>
-          {/* <GoogleLogin
-        clientId={clientId}
-        onSuccess={onSuccess}
-        onFailure={onFailure}
-        render={renderProps => (
-          <Button block style={{width:'10rem',margin:'auto',marginTop:'40vh'}} size="lg" type='submit' className='btn btn-primary' onClick={renderProps.onClick} disabled={renderProps.disabled}>Sign In</Button>
-        )}
-        cookiePolicy={'single_host_origin'}
-        style={{ marginTop: '100px' }}
-        isSignedIn={true}
-      />
-      <GoogleLogin
-        clientId={clientId}
-        onSuccess={Success}
-        render={renderProps => (<Button block style={{width:'10rem',margin:'auto',marginTop:'2vh'}} size="lg" type='submit' className='btn btn-primary' onClick={renderProps.onClick} disabled={renderProps.disabled}>Sign Up</Button>)}
-        onFailure={onFailure}
-        cookiePolicy={'single_host_origin'}
-        style={{ marginTop: '100px' }}
-        isSignedIn={true}
-      /> */}
+          
         </div>
       </div>
     </>
