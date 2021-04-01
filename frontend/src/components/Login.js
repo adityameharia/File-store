@@ -16,36 +16,36 @@ const Login = () => {
   const Success = async (res) => {
     
     
-    setToken(res.tokenId)
-    try {
-      await axios.post('/register', { name: res.profileObj.name, email: res.profileObj.email })
+  //   setToken(res.tokenId)
+  //   try {
+  //     await axios.post('/register', { name: res.profileObj.name, email: res.profileObj.email })
       
-      history.push('/')
-    }
-    catch (err) {
-      alert(err.response.data.data)      
-    }
-  };
+  //     history.push('/')
+  //   }
+  //   catch (err) {
+  //     alert(err.response.data.data)      
+  //   }
+  // };
 
-  const onFailure = (res) => {
-    console.log('Login failed: res:', res);
-    alert(
-      `Failed to login.`
-    );
-  };
+  // const onFailure = (res) => {
+  //   console.log('Login failed: res:', res);
+  //   alert(
+  //     `Failed to login.`
+  //   );
+  // };
 
-  const onSuccess = async (res) => {
+  // const onSuccess = async (res) => {
     
    
-    setToken(res.tokenId)
-    try {
-      await axios.post('/checkuser', { name: res.profileObj.name, email: res.profileObj.email })
+  //   setToken(res.tokenId)
+  //   try {
+  //     await axios.post('/checkuser', { name: res.profileObj.name, email: res.profileObj.email })
       
-      history.push('/')
-    } catch (error) {      
-      alert(error.response.data.data)
-    }
-  };
+  //     history.push('/')
+  //   } catch (error) {      
+  //     alert(error.response.data.data)
+  //   }
+  // };
 
   return (
     <div className="Login">
