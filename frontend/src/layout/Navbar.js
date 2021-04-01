@@ -3,10 +3,6 @@ import { auth } from '../utils/firebase'
 import { Navbar, Button } from 'react-bootstrap';
 import React from 'react';
 
-const clientId =
-
-    '707788443358-u05p46nssla3l8tmn58tpo9r5sommgks.apps.googleusercontent.com';
-
 const NavbarCustom = ({ isAuth }) => {
     let history = useHistory();
 

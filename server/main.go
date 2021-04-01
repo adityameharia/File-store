@@ -93,7 +93,7 @@ func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/home", HomeHandler).Methods("GET")
 	r.HandleFunc("/register", Register).Methods("POST")
-	//r.HandleFunc("/checkuser", checkUser).Methods("POST")
+	r.HandleFunc("/checkuser", checkUser).Methods("POST")
 	r.HandleFunc("/upload", fileUpload).Methods("POST")
 	r.HandleFunc("/download/{id}/{filename}", filedownloader).Methods("GET")
 	r.HandleFunc("/{id}/{filename}", deleteFile).Methods("DELETE")

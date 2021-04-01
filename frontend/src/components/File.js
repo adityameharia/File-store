@@ -54,7 +54,7 @@ function File() {
 
     const changeHandler = async (event) => {
 
-        if (event.target.files[0] == undefined)
+        if (event.target.files[0] === undefined)
             return
 
 
@@ -106,8 +106,11 @@ function File() {
                 setLoading(false);
             }
             catch (err) {
+                
                 alert(err.response?.data?.data)
+                //alert('hi')
                 console.log(err.response)
+                history.push('/login')
             }
 
         }

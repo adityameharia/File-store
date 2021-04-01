@@ -25,12 +25,12 @@ const SignUp = () => {
                 alert(err.response?.data?.data)   
                 return   
             }
-            auth.createUserWithEmailAndPassword(user.email, user.password).
-                then(async (user) => {
-                    var user = auth.currentUser;
-                    user.sendEmailVerification();
-                }).
-                catch(e => {
+            auth.createUserWithEmailAndPassword(user.email, user.password)
+                .then(async (user) => {
+                    auth.currentUser?.sendEmailVerification();
+                    history.push('/')
+                })
+                .catch(e => {
                     alert(e.message)
                 });
         } else {

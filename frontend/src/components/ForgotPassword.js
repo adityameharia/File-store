@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useHistory, Link } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import { Button, Form } from 'react-bootstrap';
 import { auth } from '../utils/firebase'
 import NavbarCustom from '../layout/Navbar'

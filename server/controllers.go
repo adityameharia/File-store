@@ -124,31 +124,31 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// func checkUser(w http.ResponseWriter, r *http.Request) {
-// 	var user Request
-// 	err := json.NewDecoder(r.Body).Decode(&user)
-// 	if err != nil {
-// 		w.WriteHeader(http.StatusInternalServerError)
-// 		data := e{
-// 			Data: "Internal server Error",
-// 		}
-// 		json.NewEncoder(w).Encode(data)
-// 		return
-// 	}
-// 	collection = client.Database("files").Collection("files")
+func checkUser(w http.ResponseWriter, r *http.Request) {
+	var user Request
+	err := json.NewDecoder(r.Body).Decode(&user)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		data := e{
+			Data: "Internal server Error",
+		}
+		json.NewEncoder(w).Encode(data)
+		return
+	}
+	collection = client.Database("files").Collection("files")
 
-// 	filter := bson.D{primitive.E{Key: "email", Value: user.Email}}
+	filter := bson.D{primitive.E{Key: "email", Value: user.Email}}
 
-// 	err = collection.FindOne(ctx, filter).Decode(&user)
-// 	if err != nil {
-// 		w.WriteHeader(http.StatusNotFound)
-// 		data := e{
-// 			Data: "No account with the given emailId exists",
-// 		}
-// 		json.NewEncoder(w).Encode(data)
+	err = collection.FindOne(ctx, filter).Decode(&user)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		data := e{
+			Data: "No account with the given emailId exists",
+		}
+		json.NewEncoder(w).Encode(data)
 
-// 		return
-// 	}
-// 	w.WriteHeader(http.StatusOK)
-// 	return
-// }
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	return
+}
