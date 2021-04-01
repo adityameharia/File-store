@@ -16,6 +16,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // UploadFileToS3 saves a file to aws bucket and returns the url to // the file and an error if there's any
@@ -52,18 +53,21 @@ func fileUpload(w http.ResponseWriter, r *http.Request) {
 
 	var resp Response
 
-	t, err := utils.VerifyIdToken(r.Header.Get("bearer-token"))
+	token := r.Header.Get("bearer-token")
+
+	email, err := utils.VerifyIdToken(token, fire)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusUnauthorized)
 		data := e{
-			Data: "Invalid Token Provided",
+			Data: "Invalid Token",
 		}
 		json.NewEncoder(w).Encode(data)
 		return
 	}
+
 	collection = client.Database("files").Collection("files")
 
-	filter := bson.D{{"email", t.Email}}
+	filter := bson.D{primitive.E{Key: "email", Value: email}}
 
 	err = collection.FindOne(ctx, filter).Decode(&resp)
 	if err != nil {
@@ -151,7 +155,7 @@ func fileUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = red.Set(t.Email, u, 59*time.Minute).Err()
+	err = red.Set(email, u, 59*time.Minute).Err()
 	if err != nil {
 		fmt.Println(err)
 	}

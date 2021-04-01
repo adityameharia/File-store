@@ -1,58 +1,81 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { GoogleLogin } from 'react-google-login';
 import axios from 'axios';
-import {  Button } from 'react-bootstrap';
+import { Button, Form } from 'react-bootstrap';
 import setToken from '../utils/setToken'
+import { auth } from '../utils/firebase'
 import NavbarCustom from '../layout/Navbar'
+import { refreshTokenSetup } from '../utils/refreshToken';
 
 const Login = () => {
-  const clientId =
-    '272242194309-sdgchprjq0s7auu186ofilo3o9ij6eir.apps.googleusercontent.com';
+  // const clientId =
+  //   '272242194309-sdgchprjq0s7auu186ofilo3o9ij6eir.apps.googleusercontent.com';
 
   let history = useHistory();
 
+  const [user, setUser] = useState({ email: '', password: '' });
 
-  const Success = async (res) => {
-    
-    
-  //   setToken(res.tokenId)
-  //   try {
-  //     await axios.post('/register', { name: res.profileObj.name, email: res.profileObj.email })
-      
-  //     history.push('/')
-  //   }
-  //   catch (err) {
-  //     alert(err.response.data.data)      
-  //   }
-  // };
 
-  // const onFailure = (res) => {
-  //   console.log('Login failed: res:', res);
-  //   alert(
-  //     `Failed to login.`
-  //   );
-  // };
+  const onChange = (e) => {
+    setUser({ ...user, [e.target.name]: e.target.value });
+  };
 
-  // const onSuccess = async (res) => {
+  const onSubmit =(e) => {
+    e.preventDefault()
+    auth.signInWithEmailAndPassword(user.email, user.password).
+    then(async(user) => { 
+      history.push('/')
+    }).
+    catch(error => {
+      alert("Invalid Credentials")
+    });
     
-   
-  //   setToken(res.tokenId)
-  //   try {
-  //     await axios.post('/checkuser', { name: res.profileObj.name, email: res.profileObj.email })
-      
-  //     history.push('/')
-  //   } catch (error) {      
-  //     alert(error.response.data.data)
-  //   }
-  // };
+  };
 
   return (
-    <div className="Login">
+    <>
       <NavbarCustom isAuth={false}></NavbarCustom>
-			<div className='container'>
-      
-      <GoogleLogin
+
+      <div style={{ padding: '60px 0' }}>
+
+        <div className='container'>
+          <Form
+            style={{ margin: '0 auto', maxWidth: '320px' }}
+            onSubmit={onSubmit}>
+            <h2 className="text-center">Login</h2>
+            <br></br>
+            <Form.Group size="lg" controlId="email">
+
+
+              <Form.Label>Email</Form.Label>
+              <Form.Control
+                name='email'
+                type='email'
+                className='form-control'
+                aria-describedby='emailHelp'
+                value={user.email}
+                onChange={onChange}
+                required></Form.Control>
+
+            </Form.Group>
+            <Form.Group size="lg" controlId="password">
+
+              <Form.Label>Password</Form.Label>
+              <Form.Control
+                type='password'
+                name='password'
+                className='form-control'
+                value={user.password}
+                onChange={onChange}
+                required></Form.Control>
+
+            </Form.Group>
+            <Button block size="lg" type='submit' className='btn btn-primary'>
+              Login
+					</Button>
+          </Form>
+          {/* <GoogleLogin
         clientId={clientId}
         onSuccess={onSuccess}
         onFailure={onFailure}
@@ -71,9 +94,10 @@ const Login = () => {
         cookiePolicy={'single_host_origin'}
         style={{ marginTop: '100px' }}
         isSignedIn={true}
-      />
-    </div>
-    </div>
+      /> */}
+        </div>
+      </div>
+    </>
   );
 
 }

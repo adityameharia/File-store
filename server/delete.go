@@ -12,6 +12,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func deleteFile(w http.ResponseWriter, r *http.Request) {
@@ -19,11 +20,13 @@ func deleteFile(w http.ResponseWriter, r *http.Request) {
 
 	//var resp Response
 
-	t, err := utils.VerifyIdToken(r.Header.Get("bearer-token"))
+	token := r.Header.Get("bearer-token")
+
+	email, err := utils.VerifyIdToken(token, fire)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusUnauthorized)
 		data := e{
-			Data: "Invalid Token Provided",
+			Data: "Invalid Token",
 		}
 		json.NewEncoder(w).Encode(data)
 		return
@@ -33,7 +36,7 @@ func deleteFile(w http.ResponseWriter, r *http.Request) {
 
 	collection = client.Database("files").Collection("files")
 
-	filter := bson.D{{"email", t.Email}}
+	filter := bson.D{primitive.E{Key: "email", Value: email}}
 	//update := { $pull: { 'files': filename } }
 
 	_, err = collection.UpdateOne(ctx, filter, bson.M{"$pull": bson.M{"files": vars["filename"]}})
@@ -64,17 +67,17 @@ func deleteFile(w http.ResponseWriter, r *http.Request) {
 		data := e{
 			Data: "Internal server Error",
 		}
-		// update := bson.M{"$push": bson.M{"files": vars["id"] + "-" + vars["filename"]}}
-		// _, err = collection.UpdateOne(ctx, filter, update)
+		update := bson.M{"$push": bson.M{"files": vars["id"] + "-" + vars["filename"]}}
+		_, err = collection.UpdateOne(ctx, filter, update)
 
-		// if err != nil {
-		// 	w.WriteHeader(http.StatusInternalServerError)
-		// 	data := e{
-		// 		Data: "Internal server Error",
-		// 	}
-		// 	json.NewEncoder(w).Encode(data)
-		// 	return
-		// }
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			data := e{
+				Data: "Internal server Error",
+			}
+			json.NewEncoder(w).Encode(data)
+			return
+		}
 		json.NewEncoder(w).Encode(data)
 		return
 	}
@@ -83,7 +86,7 @@ func deleteFile(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println(err)
 	}
-	err = red.Del(t.Email).Err()
+	err = red.Del(email).Err()
 	if err != nil {
 		fmt.Println(err)
 	}

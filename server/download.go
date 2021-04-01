@@ -21,11 +21,13 @@ func filedownloader(w http.ResponseWriter, r *http.Request) {
 
 	//var resp Response
 
-	_, err := utils.VerifyIdToken(r.Header.Get("bearer-token"))
+	token := r.Header.Get("bearer-token")
+
+	_, err := utils.VerifyIdToken(token, fire)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusUnauthorized)
 		data := e{
-			Data: "Invalid Token Provided",
+			Data: "Invalid Token",
 		}
 		json.NewEncoder(w).Encode(data)
 		return
