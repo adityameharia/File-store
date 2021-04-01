@@ -11,6 +11,7 @@ import (
 	utils "github.com/adityameharia/file-store/server/utils"
 	"github.com/go-redis/redis"
 
+	firebase "firebase.google.com/go/v4"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -30,6 +31,8 @@ var collection *mongo.Collection
 var red *redis.Client
 
 var err error
+
+var fire *firebase.App
 
 type Request struct {
 	Email string   `json:"email"`
@@ -68,6 +71,10 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	fire, err = firebase.NewApp(context.Background(), nil)
+	if err != nil {
+		log.Fatalf("error initializing app: %v\n", err)
+	}
 }
 
 func main() {
@@ -87,7 +94,7 @@ func main() {
 	r.HandleFunc("/home", HomeHandler).Methods("GET")
 	r.HandleFunc("/register", Register).Methods("POST")
 	r.HandleFunc("/checkuser", checkUser).Methods("POST")
-	r.HandleFunc("/upload", fileUpload).Methods("POST")
+	r.HandleFunc("/upload/{id}/{filename}", fileUpload).Methods("GET")
 	r.HandleFunc("/download/{id}/{filename}", filedownloader).Methods("GET")
 	r.HandleFunc("/{id}/{filename}", deleteFile).Methods("DELETE")
 

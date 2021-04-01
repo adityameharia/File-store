@@ -1,79 +1,113 @@
-import React from 'react';
-import { useHistory } from 'react-router-dom';
-import { GoogleLogin } from 'react-google-login';
-import axios from 'axios';
-import {  Button } from 'react-bootstrap';
-import setToken from '../utils/setToken'
+import React, { useState } from 'react';
+import { useHistory, Link } from 'react-router-dom';
+import { Button, Form } from 'react-bootstrap';
+import { auth, provider } from '../utils/firebase'
 import NavbarCustom from '../layout/Navbar'
+import axios from 'axios';
+
 
 const Login = () => {
-  const clientId =
-    '272242194309-sdgchprjq0s7auu186ofilo3o9ij6eir.apps.googleusercontent.com';
+
+  console.log(auth.currentUser)
 
   let history = useHistory();
 
+  const [user, setUser] = useState({ email: '', password: '' });
 
-  const Success = async (res) => {
-    
-    
-    setToken(res.tokenId)
-    try {
-      await axios.post('/register', { name: res.profileObj.name, email: res.profileObj.email })
-      
-      history.push('/')
-    }
-    catch (err) {
-      alert(err.response.data.data)      
-    }
+
+  const onChange = (e) => {
+    setUser({ ...user, [e.target.name]: e.target.value });
   };
 
-  const onFailure = (res) => {
-    console.log('Login failed: res:', res);
-    alert(
-      `Failed to login.`
-    );
+  const onSubmit = (e) => {
+    e.preventDefault()
+    auth.signInWithEmailAndPassword(user.email, user.password)
+      .then(async (user) => {
+        history.push('/')
+      })
+      .catch(e => {
+        alert(e.message)
+      });
+
   };
 
-  const onSuccess = async (res) => {
-    
-   
-    setToken(res.tokenId)
-    try {
-      await axios.post('/checkuser', { name: res.profileObj.name, email: res.profileObj.email })
-      
-      history.push('/')
-    } catch (error) {      
-      alert(error.response.data.data)
-    }
-  };
+  const signInGoogle = (e) => {
+    e.preventDefault()
+    auth.signInWithPopup(provider)
+      .then(async (res) => {
+        try {
+          await axios.post('/checkuser', { name: res.user.displayName, email: res.user.email })
+        } catch (err) {
+
+          console.log(err.response)
+          if (err.response?.data?.data === "No account with the given emailId exists") {
+
+            await axios.post('/register', { name: res.user.displayName, email: res.user.email })
+          }
+        }
+
+        history.push('/')
+      })
+      .catch(err => {
+        console.log(err)
+      })
+  }
 
   return (
-    <div className="Login">
+    <>
       <NavbarCustom isAuth={false}></NavbarCustom>
-			<div className='container'>
-      
-      <GoogleLogin
-        clientId={clientId}
-        onSuccess={onSuccess}
-        onFailure={onFailure}
-        render={renderProps => (
-          <Button block style={{width:'10rem',margin:'auto',marginTop:'40vh'}} size="lg" type='submit' className='btn btn-primary' onClick={renderProps.onClick} disabled={renderProps.disabled}>Sign In</Button>
-        )}
-        cookiePolicy={'single_host_origin'}
-        style={{ marginTop: '100px' }}
-        isSignedIn={true}
-      />
-      <GoogleLogin
-        clientId={clientId}
-        onSuccess={Success}
-        render={renderProps => (<Button block style={{width:'10rem',margin:'auto',marginTop:'2vh'}} size="lg" type='submit' className='btn btn-primary' onClick={renderProps.onClick} disabled={renderProps.disabled}>Sign Up</Button>)}
-        onFailure={onFailure}
-        cookiePolicy={'single_host_origin'}
-        style={{ marginTop: '100px' }}
-        isSignedIn={true}
-      />
-    </div>
-    </div>
+
+      <div style={{ padding: '60px 0' }}>
+
+        <div className='container'>
+          <Form
+            style={{ margin: '0 auto', maxWidth: '320px' }}
+            onSubmit={onSubmit}>
+            <h2 className="text-center">Login</h2>
+            <br></br>
+            <Form.Group size="lg" controlId="email">
+
+
+              <Form.Label>Email</Form.Label>
+              <Form.Control
+                name='email'
+                type='email'
+                className='form-control'
+                aria-describedby='emailHelp'
+                placeholder='Enter your name'
+                value={user.email}
+                onChange={onChange}
+                required></Form.Control>
+
+            </Form.Group>
+            <Form.Group size="lg" controlId="password">
+
+              <Form.Label>Password</Form.Label>
+              <Form.Control
+                type='password'
+                name='password'
+                className='form-control'
+                placeholder='Enter Password'
+                value={user.password}
+                onChange={onChange}
+                required></Form.Control>
+
+            </Form.Group>
+            <Button block size="lg" type='submit' className='btn btn-primary'>
+              Login
+					</Button>
+
+            <div style={{ textAlign: 'center' }}><Link to={`/forgotpassword`}>Forgot Password</Link> </div>
+            <div style={{ textAlign: 'center' }}>Dont have an account <Link to={`/signup`}>SignUp</Link> </div>
+            <br /><div style={{ textAlign: 'center' }}>Or Login With</div><br />
+            <Button block size="lg" onClick={signInGoogle} className='btn btn-danger'>
+              Sign In with Google
+					</Button>
+          </Form>
+
+        </div>
+      </div>
+    </>
   );
 
 }

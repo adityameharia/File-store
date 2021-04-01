@@ -1,17 +1,23 @@
 package utils
 
 import (
-	"net/http"
+	"context"
 
-	"google.golang.org/api/oauth2/v1"
+	firebase "firebase.google.com/go/v4"
 )
 
-func VerifyIdToken(idToken string) (*oauth2.Tokeninfo, error) {
-	oauth2Service, err := oauth2.New(&http.Client{})
+func VerifyIdToken(token string, fire *firebase.App) (string, error) {
+	c, err := fire.Auth(context.Background())
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-	tokenInfoCall := oauth2Service.Tokeninfo()
-	tokenInfoCall.IdToken(idToken)
-	return tokenInfoCall.Do()
+
+	t, err := c.VerifyIDToken(context.Background(), token)
+	if err != nil {
+		return "", err
+	}
+
+	email := t.Claims["email"].(string)
+
+	return email, nil
 }

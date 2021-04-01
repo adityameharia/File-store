@@ -1,23 +1,25 @@
 import { useHistory } from 'react-router-dom';
-import { GoogleLogout } from 'react-google-login';
-import { Navbar,  Button } from 'react-bootstrap';
+import { auth } from '../utils/firebase'
+import { Navbar, Button } from 'react-bootstrap';
 import React from 'react';
 
-const clientId =
-
-    '707788443358-u05p46nssla3l8tmn58tpo9r5sommgks.apps.googleusercontent.com';
-
-const NavbarCustom=({isAuth})=>{
+const NavbarCustom = ({ isAuth }) => {
     let history = useHistory();
 
-    const Success = () => {
-        console.log('Logout made successfully');
-        alert('Logout made successfully');
-        history.push('/login')
+    const logout = () => {
+        auth.signOut().then(() => {
+            console.log('Logout made successfully');
+            alert('Logout made successfully');
+            history.push('/login')
+        }).catch((error) => {
+            alert('Unable to Logout')
+        });
+
+
     };
-    
+
     return (
-        
+
         <Navbar bg="dark" variant="dark">
             <Navbar.Brand href="#home">
                 <img
@@ -29,15 +31,10 @@ const NavbarCustom=({isAuth})=>{
                 />{' '}
           File-Store
         </Navbar.Brand>
-           
-               {isAuth && <GoogleLogout
-                    clientId={clientId}
-                    render={renderProps => (
-                        <Button style={{marginLeft:"auto"}} variant="light" onClick={renderProps.onClick} disabled={renderProps.disabled}>Logout</Button>
-                    )}
-                    buttonText="Logout"
-                    onLogoutSuccess={Success}
-                ></GoogleLogout>}
+
+            {isAuth &&
+                <Button style={{ marginLeft: "auto" }} variant="light" onClick={logout}>Logout</Button>}
+
         </Navbar>
     );
 }

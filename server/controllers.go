@@ -6,10 +6,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"time"
 
 	utils "github.com/adityameharia/file-store/server/utils"
+
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func Register(w http.ResponseWriter, r *http.Request) {
@@ -31,7 +32,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 
 	user.Files = make([]string, 0)
 	collection = client.Database("files").Collection("files")
-	filter := bson.D{{"email", user.Email}}
+	filter := bson.D{primitive.E{Key: "email", Value: user.Email}}
 
 	err = collection.FindOne(ctx, filter).Decode(&resp)
 	if err != nil {
@@ -63,17 +64,17 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 
 	token := r.Header.Get("bearer-token")
 
-	t, err := utils.VerifyIdToken(token)
+	email, err := utils.VerifyIdToken(token, fire)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusUnauthorized)
 		data := e{
-			Data: "Invalid Token Provided",
+			Data: "Invalid Token",
 		}
 		json.NewEncoder(w).Encode(data)
 		return
 	}
 
-	val, err := red.Get(t.Email).Result()
+	val, err := red.Get(email).Result()
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -88,7 +89,7 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	collection = client.Database("files").Collection("files")
-	filter := bson.D{{"email", t.Email}}
+	filter := bson.D{primitive.E{Key: "email", Value: email}}
 
 	err = collection.FindOne(ctx, filter).Decode(&resp)
 	if err != nil {
@@ -111,7 +112,7 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = red.Set(t.Email, u, 59*time.Minute).Err()
+	err = red.Set(email, u, 0).Err()
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -135,7 +136,7 @@ func checkUser(w http.ResponseWriter, r *http.Request) {
 	}
 	collection = client.Database("files").Collection("files")
 
-	filter := bson.D{{"email", user.Email}}
+	filter := bson.D{primitive.E{Key: "email", Value: user.Email}}
 
 	err = collection.FindOne(ctx, filter).Decode(&user)
 	if err != nil {
