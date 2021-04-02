@@ -1,2 +1,3 @@
 # File-store
-Website to store your files,kinda like google drive.
+Lets u store your files,kinda like google drive.
+(https://file-store.netlify.app/login)
