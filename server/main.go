@@ -80,9 +80,8 @@ func init() {
 func main() {
 
 	red = redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "",
-		DB:       0,
+		Addr:     os.Getenv("REDIS_ADDR"),
+		Password: os.Getenv("REDIS_PASSWORD"),
 	})
 
 	defer client.Disconnect(ctx)

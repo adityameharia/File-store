@@ -29,13 +29,7 @@ const NavbarCustom = ({ isAuth, changeHandler, isVerified, uploading }) => {
 
         <Navbar bg="dark" variant="dark">
             <Navbar.Brand href="#home">
-                <img
-                    alt=""
-                    src="https://www.freepik.com/free-icon/facebook-link_694830.htm"
-                    width="30"
-                    height="30"
-                    className="d-inline-block align-top"
-                />{' '}
+                
           File-Store
         </Navbar.Brand>
             <div style={{ marginLeft: "auto" }} >
