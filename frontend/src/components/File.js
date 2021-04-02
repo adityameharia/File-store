@@ -88,6 +88,7 @@ function File() {
             })
         }
         catch (err) {
+            //alert("fuck")
             alert(err.response.data.data)
             console.log(err.response)
         }
@@ -114,18 +115,21 @@ function File() {
                     
                 }
                 catch (err) {
-
-                    alert(err.response?.data?.data)
-                    //alert('hi')
+                    if(err.response?.data?.data!=="No account with the given emailId exists")
+                    {
+                        console.log("nope")
+                        alert(err.response?.data?.data)
+                        history.push('/login')
+                    }
                     console.log(err.response)
-                    history.push('/login')
+                    
                 }
 
             }
         })}
         return () => { unmounted = true };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+    }, [loading])
 
     const updateUserData = (data) => {
         setUserData(data)

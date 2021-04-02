@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import { useHistory, Link } from 'react-router-dom';
 import { Button, Form } from 'react-bootstrap';
-import { auth } from '../utils/firebase'
+import { auth, provider } from '../utils/firebase'
 import NavbarCustom from '../layout/Navbar'
 import axios from 'axios'
-import {backendUrl} from '../utils/url'
+import { backendUrl } from '../utils/url'
 
 const SignUp = () => {
 
     let history = useHistory();
 
-    const [user, setUser] = useState({ email: '', password: '', confirmPassword: '' ,username:''})
+    const [user, setUser] = useState({ email: '', password: '', confirmPassword: '', username: '' })
 
     const onChange = (e) => {
         setUser({ ...user, [e.target.name]: e.target.value });
@@ -20,11 +20,11 @@ const SignUp = () => {
         e.preventDefault()
         if (user.password === user.confirmPassword) {
             e.preventDefault()
-            try{
-                await axios.post(`${backendUrl}/register`, { name: user.username,email:user.email })
+            try {
+                await axios.post(`${backendUrl}/register`, { name: user.username, email: user.email })
             } catch (err) {
-                alert(err.response?.data?.data)   
-                return   
+                alert(err.response?.data?.data)
+                return
             }
             auth.createUserWithEmailAndPassword(user.email, user.password)
                 .then(async (user) => {
@@ -38,6 +38,29 @@ const SignUp = () => {
             alert('Passwords do not match');
         }
     };
+
+    const signInGoogle = (e) => {
+        e.preventDefault()
+        auth.signInWithPopup(provider)
+            .then(async (res) => {
+                try {
+                    await axios.post(`${backendUrl}/checkuser`, { name: res.user.displayName, email: res.user.email })
+                } catch (err) {
+
+                    console.log(err.response)
+                    if (err.response?.data?.data === "No account with the given emailId exists") {
+
+                        await axios.post(`${backendUrl}/register`, { name: res.user.displayName, email: res.user.email })
+                        console.log("hi")
+                    }
+                }
+
+                history.push('/')
+            })
+            .catch(err => {
+                console.log(err)
+            })
+    }
 
     return (
         <>
@@ -59,9 +82,10 @@ const SignUp = () => {
                                 type='text'
                                 placeholder='Enter your name'
                                 className='form-control'
+                                aria-describedby='username'
                                 value={user.username}
                                 onChange={onChange}
-                                required></Form.Control><br/>
+                                required></Form.Control><br />
 
                             <Form.Label>Email</Form.Label>
                             <Form.Control
@@ -104,10 +128,17 @@ const SignUp = () => {
 
                         </Form.Group>
                         <Button block size="lg" type='submit' className='btn btn-primary'>
-                            Login
+                            Sign Up
                       </Button>
-                        <div style={{ textAlign: 'center' }}>Already have an account <Link to={`/login`}>SignIn</Link> </div>
+                        <div style={{ textAlign: 'center' }}>Already have an account <Link to={`/login`}>SignIn</Link>
+                            <br />
+                            <div style={{ textAlign: 'center' }}>OR</div><br />
+                            <Button block size="lg" onClick={signInGoogle} className='btn btn-danger'>
+                                Sign In/Sign Up with Google
+					        </Button>
+                        </div>
                     </Form>
+
 
                 </div>
             </div>

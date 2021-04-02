@@ -20,6 +20,7 @@ const FileItem = ({ filename, userData,updateUserData }) => {
                 })
         }
         catch (err) {
+            //alert("hi")
             alert(err.response.data.data)
             console.log(err.response)
         }

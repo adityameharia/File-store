@@ -37,7 +37,6 @@ const Login = () => {
         try {
           await axios.post(`${backendUrl}/checkuser`, { name: res.user.displayName, email: res.user.email })
         } catch (err) {
-
           console.log(err.response)
           if (err.response?.data?.data === "No account with the given emailId exists") {
 
@@ -98,9 +97,9 @@ const Login = () => {
 
             <div style={{ textAlign: 'center' }}><Link to={`/forgotpassword`}>Forgot Password</Link> </div>
             <div style={{ textAlign: 'center' }}>Dont have an account <Link to={`/signup`}>SignUp</Link> </div>
-            <br /><div style={{ textAlign: 'center' }}>Or Login With</div><br />
+            <br /><div style={{ textAlign: 'center' }}>OR</div><br />
             <Button block size="lg" onClick={signInGoogle} className='btn btn-danger'>
-              Sign In with Google
+              Sign In/Sign Up with Google
 					</Button>
           </Form>
 
