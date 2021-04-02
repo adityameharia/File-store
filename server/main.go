@@ -98,5 +98,5 @@ func main() {
 	r.HandleFunc("/{id}/{filename}", deleteFile).Methods("DELETE")
 
 	fmt.Println("server started")
-	http.ListenAndServe(":8080", utils.HeaderMiddleware(r))
+	http.ListenAndServe(":"+os.Getenv("PORT"), utils.HeaderMiddleware(r))
 }

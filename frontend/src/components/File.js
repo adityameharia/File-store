@@ -11,8 +11,6 @@ import { auth } from '../utils/firebase'
 import NavbarCustom from '../layout/Navbar'
 import axios from 'axios';
 import styled from "styled-components"
-import Draggable from 'react-draggable';
-import { Plus } from 'react-bootstrap-icons';
 import { Alert } from 'react-bootstrap';
 
 
@@ -92,9 +90,6 @@ function File() {
             axios.get('/home').then(response => {
                 setUserData(response.data)
             })
-
-            alert("uploaded")
-
         }
         catch (err) {
             alert(err.response.data.data)
@@ -164,7 +159,7 @@ function File() {
                                     <Alert variant='primary'>No files uploaded till now</Alert>
                                 }
                                 {
-                                    userData !== null && userData.files.map((f) => (
+                                    userData !== null && userData.files.slice(0).reverse().map((f) => (
                                         <FileItem key={f} filename={f} userData={userData} updateUserData={updateUserData} />))
 
                                 }
