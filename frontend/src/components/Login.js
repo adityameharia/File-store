@@ -36,13 +36,13 @@ const Login = () => {
     auth.signInWithPopup(provider)
       .then(async (res) => {
         try {
-          await axios.post('/checkuser', { name: res.user.displayName, email: res.user.email })
+          await axios.post('https://strawberry-pie-45032.herokuapp.com/checkuser', { name: res.user.displayName, email: res.user.email })
         } catch (err) {
 
           console.log(err.response)
           if (err.response?.data?.data === "No account with the given emailId exists") {
 
-            await axios.post('/register', { name: res.user.displayName, email: res.user.email })
+            await axios.post('https://strawberry-pie-45032.herokuapp.com/register', { name: res.user.displayName, email: res.user.email })
           }
         }
 

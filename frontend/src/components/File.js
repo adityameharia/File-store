@@ -111,7 +111,7 @@ function File() {
                 setIsAuth(true)
 
                 try {
-                    let response = await axios.get('/home')
+                    let response = await axios.get('https://strawberry-pie-45032.herokuapp.com/home')
                     setUserData(response.data)
                     setIsVerified(auth.currentUser.emailVerified)
                     setLoading(false);
