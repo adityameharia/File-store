@@ -3,7 +3,7 @@ import { auth } from '../utils/firebase'
 import { Navbar, Button } from 'react-bootstrap';
 import React from 'react';
 
-const NavbarCustom = ({ isAuth }) => {
+const NavbarCustom = ({ isAuth, changeHandler, isVerified, uploading }) => {
     let history = useHistory();
 
     const logout = () => {
@@ -18,6 +18,13 @@ const NavbarCustom = ({ isAuth }) => {
 
     };
 
+    const onChange = (e) => {
+        e.preventDefault()
+
+        //defined in File.js
+        changeHandler(e)
+    }
+
     return (
 
         <Navbar bg="dark" variant="dark">
@@ -31,9 +38,24 @@ const NavbarCustom = ({ isAuth }) => {
                 />{' '}
           File-Store
         </Navbar.Brand>
+            <div style={{ marginLeft: "auto" }} >
+                {isAuth &&
+                    <>
+                        <Button style={{ height: "2.4rem", marginRight: "0.5rem" }} variant="light" disabled={uploading}>
+                            <label htmlFor="files">{uploading ? 'Uploading' : 'Upload'}</label>
+                            <input
+                                id="files"
+                                style={{
+                                    display: "none",
+                                    visibility: "none",
 
-            {isAuth &&
-                <Button style={{ marginLeft: "auto" }} variant="light" onClick={logout}>Logout</Button>}
+                                }} type="file" name="file" onChange={onChange} disabled={uploading} /></Button>
+                    </>}
+
+                {isAuth &&
+                    <Button style={{ marginLeft: "0.5rem" }} variant="light" onClick={logout}>Logout</Button>}
+            </div>
+
 
         </Navbar>
     );

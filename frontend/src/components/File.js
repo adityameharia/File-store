@@ -49,10 +49,12 @@ function File() {
     let [userData, setUserData] = useState(null)
     let [uploading, setUploading] = useState(false)
     let [isAuth, setIsAuth] = useState(false)
-    let [isVerified,setIsVerified]=useState()
+    let [isVerified, setIsVerified] = useState()
 
 
     const changeHandler = async (event) => {
+
+        console.log("hi")
 
         console.log(userData)
 
@@ -75,9 +77,9 @@ function File() {
 
             toastId.current = toast(<Loading />);
 
-            let res=await axios.get(`/upload/${userData.ID}/${event.target.files[0].name}`)
-            
-            await axios.put(res.data.url,data)
+            let res = await axios.get(`/upload/${userData.ID}/${event.target.files[0].name}`)
+
+            await axios.put(res.data.url, data)
 
             toast.dismiss(toastId.current);
             setUploading(false)
@@ -96,35 +98,36 @@ function File() {
     };
 
     useEffect(() => {
-        auth.onAuthStateChanged(async function(user) {
-        console.log(user)
-        if (user == null) {
-            history.push('/login')
-        } 
-
-        else {
-            let token = await auth.currentUser.getIdToken(/* forceRefresh */ true)
-            setToken(token)
-            refreshTokenSetup()
-            setIsAuth(true)
-
-            try {
-                let response = await axios.get('/home')
-                setUserData(response.data)
-                setIsVerified(auth.currentUser.emailVerified)
-                setLoading(false);
-                console.log(userData)
-            }
-            catch (err) {
-                
-                alert(err.response?.data?.data)
-                //alert('hi')
-                console.log(err.response)
+        auth.onAuthStateChanged(async function (user) {
+            console.log(user)
+            if (user == null) {
                 history.push('/login')
             }
 
-        }
-    })},[])
+            else {
+                let token = await auth.currentUser.getIdToken(/* forceRefresh */ true)
+                setToken(token)
+                refreshTokenSetup()
+                setIsAuth(true)
+
+                try {
+                    let response = await axios.get('/home')
+                    setUserData(response.data)
+                    setIsVerified(auth.currentUser.emailVerified)
+                    setLoading(false);
+                    console.log(userData)
+                }
+                catch (err) {
+
+                    alert(err.response?.data?.data)
+                    //alert('hi')
+                    console.log(err.response)
+                    history.push('/login')
+                }
+
+            }
+        })
+    }, [])
 
 
     const updateUserData = (data) => {
@@ -143,34 +146,16 @@ function File() {
             </div>) :
                 (
                     <div>
-                        <NavbarCustom isAuth={isAuth} />
-                        {!uploading && isVerified && <Draggable>
-                            <div style={{
-                                position: 'fixed',
-                                zIndex: '50',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                top: '90%',
-                                left: '94%',
-                                width: 20,
-                                height: 20,
-                                backgroundColor: '#fff',
-                                borderRadius: 50,
-                            }}>
-                                <label style={{ height: '20rem' }} htmlFor="files"><Plus color="royalblue" size={60} /></label>
-                                <input
-                                    id="files"
-                                    style={{
-                                        display: "none",
-                                        visibility: "none",
-
-                                    }} type="file" name="file" onChange={changeHandler} />
-                            </div></Draggable>}
+                        <NavbarCustom
+                            isAuth={isAuth}
+                            changeHandler={changeHandler}
+                            isVerified={isVerified}
+                            uploading={uploading} />
 
                         <div>
-                            {isVerified?(<Wrapper>
+                            {isVerified ? (<Wrapper>
                                 {
-                                    !userData?.files.length && 
+                                    !userData?.files.length &&
                                     <Alert variant='primary'>No files uploaded till now</Alert>
                                 }
                                 {
@@ -178,7 +163,7 @@ function File() {
                                         <FileItem key={f} filename={f} userData={userData} updateUserData={updateUserData} />))
 
                                 }
-                            </Wrapper>):<Alert variant='danger'>Pls Verify Email before uploading</Alert>}
+                            </Wrapper>) : <Alert variant='danger'>Pls Verify Email before uploading</Alert>}
                         </div>
                         <ToastContainer
                             position="bottom-right"
