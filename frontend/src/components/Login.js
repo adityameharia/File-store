@@ -8,8 +8,6 @@ import axios from 'axios';
 
 const Login = () => {
 
-  console.log(auth.currentUser)
-
   let history = useHistory();
 
   const [user, setUser] = useState({ email: '', password: '' });

@@ -109,7 +109,7 @@ function File() {
                 setToken(token)
                 refreshTokenSetup()
                 setIsAuth(true)
-
+                console.log(token)
                 try {
                     let response = await axios.get('https://strawberry-pie-45032.herokuapp.com/home')
                     setUserData(response.data)

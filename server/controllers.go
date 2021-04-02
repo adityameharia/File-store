@@ -14,6 +14,10 @@ import (
 )
 
 func Register(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
 	w.Header().Set("Content-Type", "application/json")
 
 	var user Request
@@ -59,6 +63,11 @@ func Register(w http.ResponseWriter, r *http.Request) {
 }
 
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
 
 	var resp Response
 
@@ -124,6 +133,10 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func checkUser(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
 	var user Request
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
@@ -150,11 +163,4 @@ func checkUser(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusOK)
 	return
-}
-
-func handleFavicon(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "OPTIONS" {
-		w.WriteHeader(http.StatusOK)
-		return
-	}
 }

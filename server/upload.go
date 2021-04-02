@@ -161,6 +161,10 @@ import (
 // }
 
 func fileUpload(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
 
 	vars := mux.Vars(r)
 

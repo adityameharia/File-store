@@ -22,7 +22,7 @@
     "styled-components": "^5.2.1",
     "web-vitals": "^1.1.0"
   },
-  "proxy": "https://strawberry-pie-45032.herokuapp.com/",
+  "proxy": "http://localhost:8080/",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
