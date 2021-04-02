@@ -1,19 +1,23 @@
 import React from 'react';
 import axios from 'axios'
 import fileDownload from 'js-file-download'
-import { Card,Button } from 'react-bootstrap';
-import {backendUrl} from '../utils/url'
+import { Card, Button } from 'react-bootstrap';
+import { backendUrl } from '../utils/url'
 
 
-const FileItem = ({ filename, userData,updateUserData }) => {
+const FileItem = ({ filename, userData, updateUserData }) => {
 
     const download = async () => {
-        
+
         try {
             let res = await axios.get(`${backendUrl}/download/${userData.ID}/${filename}`)
-            
+
             axios.get(res.data.url, {
                 responseType: 'blob',
+            }, {
+                headers: {
+                    "Access-Control-Allow-Origin": "*"
+                }
             })
                 .then((res) => {
                     fileDownload(res.data, filename)
@@ -26,10 +30,10 @@ const FileItem = ({ filename, userData,updateUserData }) => {
         }
     }
 
-    const del =async()=>{
+    const del = async () => {
         try {
             await axios.delete(`${backendUrl}/${userData.ID}/${filename}`)
-            
+
             axios.get(`${backendUrl}/home`).then(response => {
                 updateUserData(response.data)
             })
@@ -41,21 +45,21 @@ const FileItem = ({ filename, userData,updateUserData }) => {
 
     return (
         <div>
-            <Card style={{ width: '20rem'}}>
-                <Card.Img variant="top" src="https://picsum.photos/200" alt="hi"/>
+            <Card style={{ width: '20rem' }}>
+                <Card.Img variant="top" src="https://picsum.photos/200" alt="hi" />
                 <Card.Body>
                     <Card.Title>{filename}</Card.Title>
-                    <Button style={{margin:"0.2rem"}} variant="primary" onClick={del}>Delete</Button>
+                    <Button style={{ margin: "0.2rem" }} variant="primary" onClick={del}>Delete</Button>
                     <Button
-                    style={{margin:"0.2rem"}}
-                    variant="primary"
-                    onClick={download}
+                        style={{ margin: "0.2rem" }}
+                        variant="primary"
+                        onClick={download}
                     >
-                    Download
+                        Download
                     </Button>
                 </Card.Body>
             </Card>
-            <br/>
+            <br />
         </div>
     )
 }

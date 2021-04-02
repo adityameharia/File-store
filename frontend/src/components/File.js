@@ -41,6 +41,10 @@ function File() {
 
     let history = useHistory();
 
+    let config={headers:{
+        "Access-Control-Allow-Origin" : "*"
+    }}
+
     const toastId = React.useRef(null);
 
     let [loading, setLoading] = useState(true)
@@ -78,7 +82,7 @@ function File() {
 
             let res = await axios.get(`${backendUrl}/upload/${userData.ID}/${event.target.files[0].name}`)
 
-            await axios.put(res.data.url, data)
+            await axios.put(res.data.url, data,config)
 
             toast.dismiss(toastId.current);
             setUploading(false)
