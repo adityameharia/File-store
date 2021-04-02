@@ -1,0 +1,1 @@
+export const backendUrl="https://strawberry-pie-45032.herokuapp.com"

@@ -2,6 +2,7 @@ import React from 'react';
 import axios from 'axios'
 import fileDownload from 'js-file-download'
 import { Card,Button } from 'react-bootstrap';
+import {backendUrl} from '../utils/url'
 
 
 const FileItem = ({ filename, userData,updateUserData }) => {
@@ -9,8 +10,8 @@ const FileItem = ({ filename, userData,updateUserData }) => {
     const download = async () => {
         
         try {
-            let res = await axios.get(`download/${userData.ID}/${filename}`)
-            console.log(res)
+            let res = await axios.get(`${backendUrl}/download/${userData.ID}/${filename}`)
+            
             axios.get(res.data.url, {
                 responseType: 'blob',
             })
@@ -26,14 +27,14 @@ const FileItem = ({ filename, userData,updateUserData }) => {
 
     const del =async()=>{
         try {
-            let r=await axios.delete(`${userData.ID}/${filename}`)
-            console.log(r)
-            axios.get('/home').then(response => {
+            await axios.delete(`${backendUrl}/${userData.ID}/${filename}`)
+            
+            axios.get(`${backendUrl}/home`).then(response => {
                 updateUserData(response.data)
             })
         } catch (error) {
             alert(error.response.data.data)
-            console.log(error)
+            console.log(error.response)
         }
     }
 

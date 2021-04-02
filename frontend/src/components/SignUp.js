@@ -4,6 +4,7 @@ import { Button, Form } from 'react-bootstrap';
 import { auth } from '../utils/firebase'
 import NavbarCustom from '../layout/Navbar'
 import axios from 'axios'
+import {backendUrl} from '../utils/url'
 
 const SignUp = () => {
 
@@ -20,7 +21,7 @@ const SignUp = () => {
         if (user.password === user.confirmPassword) {
             e.preventDefault()
             try{
-                await axios.post('/register', { name: user.username,email:user.email })
+                await axios.post(`${backendUrl}/register`, { name: user.username,email:user.email })
             } catch (err) {
                 alert(err.response?.data?.data)   
                 return   

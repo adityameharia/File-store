@@ -32,8 +32,8 @@ function App() {
     <Router>
       <Switch>
         <Route path="/login">
-        {/* {!isLoggedIn ? <Login/>:<Redirect to="/" />}      */}
-          <Login/>
+        {!isLoggedIn ? <Login/>:<Redirect to="/" />}     
+          {/* <Login/> */}
         </Route>
         <Route path="/signup">
         { !isLoggedIn ? <SignUp/>:<Redirect to="/" />}       

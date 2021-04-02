@@ -12,7 +12,7 @@ import NavbarCustom from '../layout/Navbar'
 import axios from 'axios';
 import styled from "styled-components"
 import { Alert } from 'react-bootstrap';
-
+import {backendUrl} from '../utils/url'
 
 const Wrapper = styled.div`
 	display: flex;
@@ -52,10 +52,6 @@ function File() {
 
     const changeHandler = async (event) => {
 
-        console.log("hi")
-
-        console.log(userData)
-
         if (event.target.files[0] === undefined)
             return
 
@@ -80,14 +76,14 @@ function File() {
 
             toastId.current = toast(<Loading />);
 
-            let res = await axios.get(`/upload/${userData.ID}/${event.target.files[0].name}`)
+            let res = await axios.get(`${backendUrl}/upload/${userData.ID}/${event.target.files[0].name}`)
 
             await axios.put(res.data.url, data)
 
             toast.dismiss(toastId.current);
             setUploading(false)
 
-            axios.get('/home').then(response => {
+            axios.get(`${backendUrl}/home`).then(response => {
                 setUserData(response.data)
             })
         }
@@ -98,8 +94,9 @@ function File() {
     };
 
     useEffect(() => {
+        let unmounted = false;
+        if(!unmounted){
         auth.onAuthStateChanged(async function (user) {
-            console.log(user)
             if (user == null) {
                 history.push('/login')
             }
@@ -109,13 +106,12 @@ function File() {
                 setToken(token)
                 refreshTokenSetup()
                 setIsAuth(true)
-                console.log(token)
                 try {
-                    let response = await axios.get('https://strawberry-pie-45032.herokuapp.com/home')
+                    let response = await axios.get(`${backendUrl}/home`)
                     setUserData(response.data)
                     setIsVerified(auth.currentUser.emailVerified)
                     setLoading(false);
-                    console.log(userData)
+                    
                 }
                 catch (err) {
 
@@ -126,7 +122,8 @@ function File() {
                 }
 
             }
-        })
+        })}
+        return () => { unmounted = true };
     }, [])
 
 

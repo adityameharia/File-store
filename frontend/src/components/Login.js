@@ -4,6 +4,7 @@ import { Button, Form } from 'react-bootstrap';
 import { auth, provider } from '../utils/firebase'
 import NavbarCustom from '../layout/Navbar'
 import axios from 'axios';
+import {backendUrl} from '../utils/url'
 
 
 const Login = () => {
@@ -34,13 +35,13 @@ const Login = () => {
     auth.signInWithPopup(provider)
       .then(async (res) => {
         try {
-          await axios.post('https://strawberry-pie-45032.herokuapp.com/checkuser', { name: res.user.displayName, email: res.user.email })
+          await axios.post(`${backendUrl}/checkuser`, { name: res.user.displayName, email: res.user.email })
         } catch (err) {
 
           console.log(err.response)
           if (err.response?.data?.data === "No account with the given emailId exists") {
 
-            await axios.post('https://strawberry-pie-45032.herokuapp.com/register', { name: res.user.displayName, email: res.user.email })
+            await axios.post(`${backendUrl}/register`, { name: res.user.displayName, email: res.user.email })
           }
         }
 
