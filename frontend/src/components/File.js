@@ -61,6 +61,11 @@ function File() {
         if (event.target.files[0] === undefined)
             return
 
+        if (event.target.files[0].size >10e6)
+        {    
+            alert("Pls select a File less than 10MB")
+            return
+        }
 
         const data = new FormData()
         data.append('file', event.target.files[0])
