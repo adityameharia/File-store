@@ -72,7 +72,7 @@ const Login = () => {
                 type='email'
                 className='form-control'
                 aria-describedby='emailHelp'
-                placeholder='Enter your name'
+                placeholder='Enter your Email'
                 value={user.email}
                 onChange={onChange}
                 required></Form.Control>
