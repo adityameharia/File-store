@@ -96,6 +96,8 @@ func main() {
 	r.HandleFunc("/upload/{id}/{filename}", fileUpload).Methods("GET")
 	r.HandleFunc("/download/{id}/{filename}", filedownloader).Methods("GET")
 	r.HandleFunc("/{id}/{filename}", deleteFile).Methods("DELETE")
+	r.HandleFunc("/favicon.ico", handleFavicon).Methods("OPTIONS")
+	r.HandleFunc("/home/favicon.ico", handleFavicon).Methods("OPTIONS")
 
 	fmt.Println("server started")
 	http.ListenAndServe(":"+os.Getenv("PORT"), utils.HeaderMiddleware(r))
