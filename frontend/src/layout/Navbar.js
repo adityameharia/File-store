@@ -8,7 +8,6 @@ const NavbarCustom = ({ isAuth, changeHandler, isVerified, uploading }) => {
 
     const logout = () => {
         auth.signOut().then(() => {
-            alert('Logout made successfully');
             history.push('/login')
         }).catch((error) => {
             alert('Unable to Logout')
