@@ -124,8 +124,8 @@ function File() {
             }
         })}
         return () => { unmounted = true };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
-
 
     const updateUserData = (data) => {
         setUserData(data)
