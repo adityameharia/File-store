@@ -99,6 +99,7 @@ function File() {
     };
 
     useEffect(() => {
+        axios.get(`${backendUrl}/heroku`)
         let unmounted = false;
         if(!unmounted){
         auth.onAuthStateChanged(async function (user) {
@@ -121,7 +122,6 @@ function File() {
                 catch (err) {
                     if(err.response?.data?.data!=="No account with the given emailId exists")
                     {
-                        console.log("nope")
                         alert(err.response?.data?.data)
                         history.push('/login')
                     }

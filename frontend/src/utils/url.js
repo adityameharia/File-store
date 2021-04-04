@@ -1,1 +1,1 @@
-export const backendUrl="https://secure-springs-96303.herokuapp.com/"
+export const backendUrl="https://secure-springs-96303.herokuapp.com"

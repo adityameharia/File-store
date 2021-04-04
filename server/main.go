@@ -90,6 +90,7 @@ func main() {
 		log.Fatal(err)
 	}
 	r := mux.NewRouter()
+	r.HandleFunc("/heroku", herokuHandler).Methods("GET", "OPTIONS")
 	r.HandleFunc("/home", HomeHandler).Methods("GET", "OPTIONS")
 	r.HandleFunc("/register", Register).Methods("POST", "OPTIONS")
 	r.HandleFunc("/checkuser", checkUser).Methods("POST", "OPTIONS")
